@@ -7,4 +7,5 @@ public class UrlConstants {
     public static final String REGISTER = "/register";
     public static final String ACTIVATE = "/activate";
     public static final String LOGIN = "/login";
+    public static final String CATEGORY = "/category";
 }
