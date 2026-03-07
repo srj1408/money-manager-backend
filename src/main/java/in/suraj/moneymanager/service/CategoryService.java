@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,12 @@ public class CategoryService {
         Category newCategory = toEntity(dto, currentProfile);
         newCategory = categoryRepository.save(newCategory);
         return toDto(newCategory);
+    }
+
+    public List<CategoryDto> getCategoriesForCurrentUser(){
+        Long profileId = profileService.getCurrentProfile().getId();
+        List<Category> categories = categoryRepository.findByProfileId(profileId);
+        return categories.stream().map(this::toDto).toList();
     }
 
     private Category toEntity(CategoryDto dto, Profile profile){
