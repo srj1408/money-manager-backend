@@ -8,4 +8,6 @@ public class UrlConstants {
     public static final String ACTIVATE = "/activate";
     public static final String LOGIN = "/login";
     public static final String CATEGORY = "/category";
+    public static final String EXPENSE = "/expense";
+    public static final String INCOME = "/income";
 }
