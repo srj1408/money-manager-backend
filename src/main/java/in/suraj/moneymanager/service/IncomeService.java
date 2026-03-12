@@ -5,10 +5,14 @@ import in.suraj.moneymanager.entity.Category;
 import in.suraj.moneymanager.entity.Income;
 import in.suraj.moneymanager.entity.Profile;
 import in.suraj.moneymanager.exception.ResourceNotFoundException;
+import in.suraj.moneymanager.exception.UnauthorizedException;
 import in.suraj.moneymanager.repository.CategoryRepository;
 import in.suraj.moneymanager.repository.IncomeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,22 @@ public class IncomeService {
         Income newIncome = toEntity(dto,profile,category);
         newIncome = incomeRepository.save(newIncome);
         return toDto(newIncome);
+    }
+
+    public List<IncomeDto> getCurrentMonthIncomes(){
+        Long profileId = profileService.getCurrentProfile().getId();
+        LocalDate startDate = LocalDate.now().withDayOfMonth(1);
+        LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+        List<Income> incomes = incomeRepository.findByProfileIdAndDateBetween(profileId,startDate,endDate);
+        return incomes.stream().map(this::toDto).toList();
+    }
+
+    public void deleteIncome(Long incomeId) throws ResourceNotFoundException, UnauthorizedException {
+        Long currentProfileId = profileService.getCurrentProfile().getId();
+        Income income = incomeRepository.findById(incomeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Income not found!"));
+        if(!income.getProfile().getId().equals(currentProfileId)) throw new UnauthorizedException("Unauthorized to delete this income");
+        incomeRepository.delete(income);
     }
 
     //helper methods

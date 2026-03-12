@@ -5,10 +5,14 @@ import in.suraj.moneymanager.entity.Category;
 import in.suraj.moneymanager.entity.Expense;
 import in.suraj.moneymanager.entity.Profile;
 import in.suraj.moneymanager.exception.ResourceNotFoundException;
+import in.suraj.moneymanager.exception.UnauthorizedException;
 import in.suraj.moneymanager.repository.CategoryRepository;
 import in.suraj.moneymanager.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +29,22 @@ public class ExpenseService {
         Expense newExpense = toEntity(dto,profile,category);
         newExpense = expenseRepository.save(newExpense);
         return toDto(newExpense);
+    }
+
+    public List<ExpenseDto> getCurrentMonthExpenses(){
+        Long profileId = profileService.getCurrentProfile().getId();
+        LocalDate startDate = LocalDate.now().withDayOfMonth(1);
+        LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+        List<Expense> expenses = expenseRepository.findByProfileIdAndDateBetween(profileId,startDate,endDate);
+        return expenses.stream().map(this::toDto).toList();
+    }
+
+    public void deleteExpense(Long expenseId) throws ResourceNotFoundException, UnauthorizedException {
+        Long currentProfileId = profileService.getCurrentProfile().getId();
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Expense not found!"));
+        if(!expense.getProfile().getId().equals(currentProfileId)) throw new UnauthorizedException("Unauthorized to delete this expense");
+        expenseRepository.delete(expense);
     }
 
     //helper methods
