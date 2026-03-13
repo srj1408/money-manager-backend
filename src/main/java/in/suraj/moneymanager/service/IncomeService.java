@@ -48,6 +48,18 @@ public class IncomeService {
         incomeRepository.delete(income);
     }
 
+    public List<IncomeDto> getLatest5Incomes(){
+        Long profileId = profileService.getCurrentProfile().getId();
+        List<Income> incomes = incomeRepository.findTop5ByProfileIdOrderByDateDesc(profileId);
+        return incomes.stream().map(this::toDto).toList();
+    }
+
+    public Double getTotalIncome(){
+        Long profileId = profileService.getCurrentProfile().getId();
+        Double total = incomeRepository.findTotalIncomeByProfileId(profileId);
+        return total == null ? 0 : total;
+    }
+
     //helper methods
     private Income toEntity(IncomeDto dto, Profile profile, Category category){
         return Income.builder()

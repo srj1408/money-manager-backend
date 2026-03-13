@@ -47,6 +47,18 @@ public class ExpenseService {
         expenseRepository.delete(expense);
     }
 
+    public List<ExpenseDto> getLatest5Expenses(){
+        Long profileId = profileService.getCurrentProfile().getId();
+        List<Expense> expenses = expenseRepository.findTop5ByProfileIdOrderByDateDesc(profileId);
+        return expenses.stream().map(this::toDto).toList();
+    }
+
+    public Double getTotalExpense(){
+        Long profileId = profileService.getCurrentProfile().getId();
+        Double total = expenseRepository.findTotalExpenseByProfileId(profileId);
+        return total == null ? 0 : total;
+    }
+
     //helper methods
     private Expense toEntity(ExpenseDto dto, Profile profile, Category category){
         return Expense.builder()
