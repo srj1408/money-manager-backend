@@ -10,4 +10,5 @@ public class UrlConstants {
     public static final String CATEGORY = "/category";
     public static final String EXPENSE = "/expense";
     public static final String INCOME = "/income";
+    public static final String DASHBOARD = "/dashboard";
 }
